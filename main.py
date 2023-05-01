@@ -66,35 +66,35 @@ def performRound(inputText: str, inputKey: str, roundNumber: int):
 
     return(outLeft, outRight, keyOutLeft, keyOutRight)
     
+def encrypt():
+    # Step 0: Setup
+    rounds = 16
+    currentRound = 0
 
-# Step 0: Setup
-rounds = 16
-currentRound = 0
+    # Step 1: Input
+    inputBinary = "0110000101100010011000110110010001100101011001100110011101101000" #abcdefg
+    key = "01101000011010010110101001101011011011000110110101101110" #hijklmn
 
-# Step 1: Input
-inputBinary = "0110000101100010011000110110010001100101011001100110011101101000" #abcdefg
-key = "01101000011010010110101001101011011011000110110101101110" #hijklmn
+    # Step 2: Initial Permutation
+    newInputBinary = performPermutation(inputBinary, 1)
 
-# Step 2: Initial Permutation
-newInputBinary = performPermutation(inputBinary, 1)
+    # Step 3: Rounds
+    newKey = key # for variable's sake
+    while currentRound < rounds:
+        leftString, rightString, keyLeft, keyRight = performRound(newInputBinary, newKey, currentRound)
+        newInputBinary = str(leftString) + str(rightString) # str() is a failsafe just incase it interprets as int or bin
+        newKey = str(keyLeft) + str(keyRight)
+        currentRound += 1
+        
+    roundOutput = newInputBinary
 
-# Step 3: Rounds
-newKey = key # for variable's sake
-while currentRound < rounds:
-    leftString, rightString, keyLeft, keyRight = performRound(newInputBinary, newKey, currentRound)
-    newInputBinary = str(leftString) + str(rightString) # str() is a failsafe just incase it interprets as int or bin
-    newKey = str(keyLeft) + str(keyRight)
-    currentRound += 1
-    
-roundOutput = newInputBinary
+    # Step 4: 32-bit swap
+    roundOutputLeft = roundOutput[0:32]
+    roundOutputRight = roundOutput[32:]
 
-# Step 4: 32-bit swap
-roundOutputLeft = roundOutput[0:32]
-roundOutputRight = roundOutput[32:]
+    swapOutput = str(roundOutputRight) + str(roundOutputLeft)
 
-swapOutput = str(roundOutputRight) + str(roundOutputLeft)
+    # Step 5: Inverse Initial Permutation
+    finalOutput = performPermutation(swapOutput, 2)
 
-# Step 5: Inverse Initial Permutation
-finalOutput = performPermutation(swapOutput, 2)
-
-print(finalOutput)
+    print(finalOutput)
