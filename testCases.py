@@ -1,6 +1,7 @@
 from sboxes import *
 from tables import *
 from main import performLeftShift, performRound, performXOR
+from des import DesKey
 
 # UNDONE AND INCOMPLETE
 def testSBox(testAll: bool, detailed: bool, *listOfTests):
@@ -11,4 +12,7 @@ def testSBox(testAll: bool, detailed: bool, *listOfTests):
             print(performSubstitution("101010101010101010101010101010101010101010101010"))
 
 
-testSBox(True, False, 1,2,3,4)
+key = DesKey(b'hijklm')
+key.is_single()
+
+key.encrypt("abcdefgh")

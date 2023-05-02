@@ -93,4 +93,3 @@ def runSBox(inputString: str, index: int):
     while(len([*substitution]) < 4):
         substitution = "0" + substitution
     return substitution
-
