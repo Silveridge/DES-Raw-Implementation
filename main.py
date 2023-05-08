@@ -1,100 +1,97 @@
-from sboxes import *
-from tables import *
+from encryption import *
+import time
 
-def performXOR(input1: str, input2: str):
-    outputString = [(ord(a) ^ ord(b)) for a, b in zip(input1, input2)] # xor's by pairing each element in input1 and input2, autochange them to int, then xor.
-    outputString = "".join(map(str, outputString)) # output of above function is an array of ints, converts to string
-    return outputString
+def writeToFile(plaintext1:str, plaintext2:str, key1:str, key2:str, runningTime:str, processedOut):
+    f = open("output.txt","w")
+    f.write("Avalance Demonstration\n")
+    f.write("Implementation by Sam Fitzpatrick (C3404867) and Corey Silk (C3280997)\n")
+    f.write(f"Plaintext P: {plaintext1}\n")
+    f.write(f"Plaintext P': {plaintext2}\n")
+    f.write(f"Key K: {key1}\n")
+    f.write(f"Key K': {key2}\n")
+    f.write(f"Total running time: {runningTime}\n")
+    f.write("\nP and P' under K\n")
+    f.write(f"Ciphertext C DES0: {processedOut[2][0]}\n")
+    f.write(f"Ciphertext C DES1: {processedOut[2][1]}\n")
+    f.write(f"Ciphertext C DES2: {processedOut[2][2]}\n")
+    f.write(f"Ciphertext C DES3: {processedOut[2][3]}\n")
+    f.write(f"Ciphertext C' DES0: {processedOut[2][4]}\n")
+    f.write(f"Ciphertext C' DES1: {processedOut[2][5]}\n")
+    f.write(f"Ciphertext C' DES2: {processedOut[2][6]}\n")
+    f.write(f"Ciphertext C' DES3: {processedOut[2][7]}\n")
 
-def performLeftShift(input: str, roundNumber: int):
-    twoShifts = [3,4,5,6,7,8,10,11,12,13,14,15]
-    inputA = [*input]
-    inputA.append(inputA.pop(0))
-    if(roundNumber in twoShifts):
-        inputA.append(inputA.pop(0))
-    input = "".join(inputA)
-    return input
-
-def performRound(inputText: str, inputKey: str, roundNumber: int):
-    inLeft = ""
-    inRight = ""
-    outLeft = ""
-    outRight = ""
-    keyLeft = ""
-    keyRight = ""
-    keyOutLeft = ""
-    keyOutRight = ""
-
-    ### KEY OPERATIONS
-    # split key into 28-bit halves
-    keyLeft = inputKey[0:28]
-    keyRight = inputKey[28:]
-
-    # left shift the key halves
-    keyLeft = performLeftShift(keyLeft, roundNumber)
-    keyRight = performLeftShift(keyRight, roundNumber)
-
-    # final key values
-    keyOutRight = keyRight
-    keyOutLeft = keyLeft
-    subKey = keyRight + keyLeft
-
-    # get key to XOR
-    keyToXOR = performPermutation(subKey, 6)
-
-    ### TEXT OPERATIONS
-
-    # split text into 32-bit halves
-    inLeft = inputText[0:32]
-    inRight = inputText[32:]
-    outLeft = inRight
-
-    # EXPANSION TABLE
-    expandedString = performPermutation(inRight, 3)
-
-    # XOR
-    xordString = performXOR(expandedString, keyToXOR)
-
-    # S-BOX
-    substitutedString = performSubstitution(xordString)
-
-    # PERMUTATION
-    permutatedString = performPermutation(substitutedString, 4)
-
-    # XOR With inLeft
-    outRight = performXOR(permutatedString, inLeft)
-
-    return(outLeft, outRight, keyOutLeft, keyOutRight)
+    f.write(f"Round      DES0     DES1     DES2     DES3\n")
+    for i in range(len(processedOut[0][0])):
+        f.write(f"{processedOut[0][0][i]}       {processedOut[0][1][i]}         {processedOut[0][2][i]}         {processedOut[0][3][i]}           {processedOut[0][4][i]}\n")
     
-def encrypt():
-    # Step 0: Setup
-    rounds = 16
-    currentRound = 0
 
-    # Step 1: Input
-    inputBinary = "0110000101100010011000110110010001100101011001100110011101101000" #abcdefg
-    key = "01101000011010010110101001101011011011000110110101101110" #hijklmn
+def execute(plaintext1:str, plaintext2:str, key1:str, key2:str):
+    start = time.time()
+    outputs = []
+    encrypt = Encryptor(plaintext1, key1)
+    outputs.append(encrypt.encrypt(0))
+    outputs.append(encrypt.encrypt(1))
+    outputs.append(encrypt.encrypt(2))
+    outputs.append(encrypt.encrypt(3)) #DES 3 NOT WORKING YET, SEE tables.py FOR MORE
 
-    # Step 2: Initial Permutation
-    newInputBinary = performPermutation(inputBinary, 1)
+    encrypt.changePlaintext(plaintext2)
+    
+    outputs.append(encrypt.encrypt(0))
+    outputs.append(encrypt.encrypt(1))
+    outputs.append(encrypt.encrypt(2))
+    outputs.append(encrypt.encrypt(3)) #DES 3 NOT WORKING YET, SEE tables.py FOR MORE
 
-    # Step 3: Rounds
-    newKey = key # for variable's sake
-    while currentRound < rounds:
-        leftString, rightString, keyLeft, keyRight = performRound(newInputBinary, newKey, currentRound)
-        newInputBinary = str(leftString) + str(rightString) # str() is a failsafe just incase it interprets as int or bin
-        newKey = str(keyLeft) + str(keyRight)
-        currentRound += 1
-        
-    roundOutput = newInputBinary
+    end = time.time()
+    total = end-start
+    processedOut = processOutputs(plaintext1, plaintext2, outputs)
+    writeToFile(plaintext1, plaintext2, key1, key2, total, processedOut)
 
-    # Step 4: 32-bit swap
-    roundOutputLeft = roundOutput[0:32]
-    roundOutputRight = roundOutput[32:]
+def execute1(a,b,c,d):
+    return
 
-    swapOutput = str(roundOutputRight) + str(roundOutputLeft)
+def processOutputs(p1, p2, outputArray):
+    initialInputs = [p1, p2]
+    finalOutputs = []
+    roundOutputs = [] # Comparing indexes 0,4 | 1,5 | 2,6 | 3,7
+    returnedArray = [[],[],[],[],[]] # Round | DES0 | DES1 | DES2 | DES3
+    for i in range(len(outputArray)):
+        finalOutputs.append(outputArray[i][0])
+        roundOutputs.append(outputArray[i][1])
 
-    # Step 5: Inverse Initial Permutation
-    finalOutput = performPermutation(swapOutput, 2)
+    returnedArray[0].append(0)
+    returnedArray[1].append(findDifference(p1, p2))
+    returnedArray[2].append(findDifference(p1, p2))
+    returnedArray[3].append(findDifference(p1, p2))
+    returnedArray[4].append(findDifference(p1, p2))
 
-    print(finalOutput)
+
+    for i in range(0,16):
+        returnedArray[0].append(i+1)
+        returnedArray[1].append(findDifference(roundOutputs[0][i], roundOutputs[4][i]))
+        returnedArray[2].append(findDifference(roundOutputs[1][i], roundOutputs[5][i]))
+        returnedArray[3].append(findDifference(roundOutputs[2][i], roundOutputs[6][i]))
+        returnedArray[4].append(findDifference(roundOutputs[3][i], roundOutputs[7][i]))
+    
+    print(finalOutputs)
+    return returnedArray, initialInputs, finalOutputs
+
+
+def findDifference(bin1:str, bin2:str):
+    bin1 = [*bin1]
+    bin2 = [*bin2]
+    totalDiff = 0
+    for i in range (len(bin1)):
+        if(bin1[i] != bin2[i]):
+            totalDiff += 1
+    return totalDiff
+
+# inputBinary = "0110000101100010011000110110010001100101011001100110011101101000" #abcdefgh
+    #key = "01101001011010100110101101101100011011010110111001101111" #ijklmno
+
+
+execute(
+    "0110000101100010011000110110010001100101011001100110011101101000", 
+    "0110000101100010011000110110010001100101011001100110011101101001",
+    "01101001011010100110101101101100011011010110111001101111", #ijklmno
+    "01101001011010100110101101101100011011010110111001101110" #xyzABCD
+)
