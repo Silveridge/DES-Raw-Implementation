@@ -4,10 +4,11 @@ try:
 except:
     raise Exception("Make sure you have bitarray 2.7.3 or higher installed")
 class DES():
-    def __init__(self, inputText, key, mode):
+    def __init__(self, inputText:str, key:str, mode:str, desType: int):
         self.inputText = inputText
         self.inputKey = key
         self.mode = mode # "e" for encrypt, "d" for decrypt
+        self.desVersion = desType
         self.ip = [ #Initial Permutation Function
                         58,50,42,34,26,18,10,2,
                         60,52,44,36,28,20,12,4,
@@ -109,13 +110,16 @@ class DES():
                     ]
         self.fullRoundBinaries = []
 
+    def getRoundBinaries(self):
+        return self.fullRoundBinaries
 
     def run(self):
         if(self.mode == "e"):
-            ciphertext = self.encrypt(self.inputText, self.inputKey)
+            ciphertext = self.encrypt()
+            self.processRoundBinaries()
             return ciphertext
         elif(self.mode == "d"):
-            plaintext = self.decrypt(self.inputText, self.inputKey)
+            plaintext = self.decrypt()
             return plaintext
         else:
             raise Exception("ModeError: must be 'e' (encrypt) or 'd' (decrypt)")
@@ -203,31 +207,47 @@ class DES():
         right = block[32:]
 
         for i in range(16):
-            expandedText = self.performPermutations(right, 3)
+            currentString = self.performPermutations(right, 3)
             
             # Access the round key for the specific round
             newRoundKey = roundKeys[i]
 
             # XOR the expanded block with the round key
-            xordValue = expandedText ^ newRoundKey
+            if(self.desVersion != 1):
+                currentString = currentString ^ newRoundKey
 
-            substitutedText = self.performSBox(xordValue)
-            permutedText = self.performPermutations(substitutedText, 4)
-            xordValue = permutedText ^ left
+            if(self.desVersion != 2):
+                currentString = self.performSBox(currentString)
+            else:
+                currentString = self.performSBox(currentString)
+
+            if(self.desVersion != 3):
+                currentString = self.performPermutations(currentString, 4)
+            currentString = currentString ^ left
 
             left = right
-            right = xordValue
+            right = currentString
 
-            self.fullRoundBinaries.append(str(left) + str(right))
+            self.fullRoundBinaries.append((left,right))
 
         finalRoundOutput = right + left
 
         return finalRoundOutput
 
-    def encrypt(self, plaintext, key):
+    def processRoundBinaries(self):
+        tempArray = []
+        for round in self.fullRoundBinaries:
+            fullBinary = str(round[0].to01()) + str(round[1].to01())
+            tempArray.append(fullBinary)
+        self.fullRoundBinaries = tempArray
+
+    def getOutputText(self):
+        return self.outputText
+
+    def encrypt(self):
         # Convert the binary strings to bitarrays
-        plaintext = bitarray.bitarray(plaintext)
-        key = bitarray.bitarray(key)
+        plaintext = bitarray.bitarray(self.inputText)
+        key = bitarray.bitarray(self.inputKey)
 
         # Perform the initial permutation (self.ip)
         permutedText = self.performPermutations(plaintext, 1)
@@ -235,19 +255,20 @@ class DES():
         # Generate the round keys
         roundKeys = self.generateRoundKeys(key)
 
-        # Perform the Feistel network
+        # Perform the rounds
         ciphertext = self.performRounds(permutedText, roundKeys)
 
         # Perform the final permutation (self.ip-1)
         ciphertext = self.performPermutations(ciphertext, 5)
 
         # Convert the ciphertext to a binary string and return
+        self.outputText = ciphertext.to01()
         return ciphertext.to01()
 
-    def decrypt(self, ciphertext, key):
+    def decrypt(self):
         # Convert the binary strings to bitarrays
-        ciphertext = bitarray.bitarray(ciphertext)
-        key = bitarray.bitarray(key)
+        ciphertext = bitarray.bitarray(self.inputText)
+        key = bitarray.bitarray(self.inputKey)
 
         # Perform the initial permutation (self.ip)
         permutedText = self.performPermutations(ciphertext, 1)
@@ -263,4 +284,5 @@ class DES():
         plaintext = self.performPermutations(plaintext, 5)
 
         # Convert the plaintext to a binary string and return
+        self.outputText = plaintext.to01()
         return plaintext.to01()
