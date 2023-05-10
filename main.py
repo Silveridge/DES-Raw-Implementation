@@ -1,4 +1,4 @@
-from encryption import *
+from des import *
 import time
 
 def writeToFile(plaintext1:str, plaintext2:str, key1:str, key2:str, runningTime:str, processedOut):
@@ -29,17 +29,20 @@ def execute(plaintext1:str, plaintext2:str, key1:str, key2:str):
     start = time.time()
     outputs = []
     encrypt = Encryptor(plaintext1, key1)
-    outputs.append(encrypt.encrypt(0))
-    outputs.append(encrypt.encrypt(1))
-    outputs.append(encrypt.encrypt(2))
-    outputs.append(encrypt.encrypt(3)) #DES 3 NOT WORKING YET, SEE tables.py FOR MORE
+    encrypt.changeType("e")
+    outputs.append(encrypt.runDES(0))
+    #outputs.append(encrypt.runDES(1))
+    #outputs.append(encrypt.runDES(2))
+    #outputs.append(encrypt.runDES(3)) #DES 3 NOT WORKING YET, SEE tables.py FOR MORE
 
-    encrypt.changePlaintext(plaintext2)
+    #encrypt.changePlaintext(plaintext2)
+    encrypt.changeType("d")
+    encrypt.changePlaintext("0100000100011101111011100110011100011101011000010001100001011001")
     
-    outputs.append(encrypt.encrypt(0))
-    outputs.append(encrypt.encrypt(1))
-    outputs.append(encrypt.encrypt(2))
-    outputs.append(encrypt.encrypt(3)) #DES 3 NOT WORKING YET, SEE tables.py FOR MORE
+    outputs.append(encrypt.runDES(0))
+    #outputs.append(encrypt.runDES(1))
+    #outputs.append(encrypt.runDES(2))
+    #outputs.append(encrypt.runDES(3)) #DES 3 NOT WORKING YET, SEE tables.py FOR MORE
 
     end = time.time()
     total = end-start
@@ -85,13 +88,10 @@ def findDifference(bin1:str, bin2:str):
             totalDiff += 1
     return totalDiff
 
-# inputBinary = "0110000101100010011000110110010001100101011001100110011101101000" #abcdefgh
-    #key = "01101001011010100110101101101100011011010110111001101111" #ijklmno
-
 
 execute(
     "0110000101100010011000110110010001100101011001100110011101101000", 
     "0110000101100010011000110110010001100101011001100110011101101001",
-    "01101001011010100110101101101100011011010110111001101111", #ijklmno
-    "01101001011010100110101101101100011011010110111001101110" #xyzABCD
+    "0110100101101010011010110110110001101101011011100110111011010001",
+    "0110100101101010011010110110110001101101011011100110111011010000"
 )
