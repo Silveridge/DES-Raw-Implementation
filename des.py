@@ -3,6 +3,8 @@ try:
     from bitarray.util import ba2int
 except:
     raise Exception("Make sure you have bitarray 2.7.3 or higher installed")
+
+
 class DES():
     def __init__(self, inputText:str, key:str, mode:str, desType: int):
         self.inputText = inputText
@@ -109,6 +111,7 @@ class DES():
                         33,1,41,9,49,17,57,25
                     ]
         self.fullRoundBinaries = []
+        self.outputText = ""
 
     def getRoundBinaries(self):
         return self.fullRoundBinaries
@@ -157,6 +160,8 @@ class DES():
             for i in self.inverseIP:
                 permutedText.append(block[i - 1])
             return permutedText
+        
+
 
     def generateRoundKeys(self, key):
         # Perform the permutation choice 1 (self.pc1) on the key
