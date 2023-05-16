@@ -85,7 +85,7 @@ end = time.time()
 # write to output.txt file
 def writeToFile(plaintext1:str, plaintext2:str, key1:str, key2:str, runningTime:str, ciphertext:str):
     f = open("output.txt","w")
-    f.write("Avalance Demonstration\n")
+    f.write("Avalanche Demonstration\n")
     f.write("Implementation by Sam Fitzpatrick (C3404867) and Corey Silk (C3280997)\n")
     f.write(f"Plaintext P: {plaintext1}\n")
     f.write(f"Plaintext P': {plaintext2}\n")
