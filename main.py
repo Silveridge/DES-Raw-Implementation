@@ -98,8 +98,9 @@ def writeToFile(plaintext1:str, plaintext2:str, key1:str, key2:str, runningTime:
 
     f.write(f"Round      DES0     DES1     DES2     DES3\n")
     f.write("0            1        1        1        1\n")
+    breaks = ["             ", "         ", "         ", "         "]
     for i in range(len(firstSet[0])):
-        f.write(f"{i+1}            {firstSet[0][i]}      {firstSet[1][i]}       {firstSet[2][i]}       {firstSet[3][i]}\n")
+        f.write(f"{i+1}{breaks[0][len(str(i+1)):]}{firstSet[0][i]}{breaks[1][len(str(firstSet[0][i])):]}{firstSet[1][i]}{breaks[2][len(str(firstSet[1][i])):]}{firstSet[2][i]}{breaks[3][len(str(i+1)):]}{firstSet[3][i]}\n")
     f.write("\n")
     f.write("\nP under K and K'\n")
     f.write(f"Ciphertext C: {secondDES[0].getOutputText()}\n")
@@ -110,7 +111,6 @@ def writeToFile(plaintext1:str, plaintext2:str, key1:str, key2:str, runningTime:
 
     # breaks allows for equally-formatted spaces between all of the difference numbers
     # as extra digits means extra breaks between all of the columns, causing misalignment.
-    breaks = ["             ", "         ", "        ", "        "]
     for i in range(len(secondSet[0])):
         f.write(f"{i+1}{breaks[0][len(str(i+1)):]}{secondSet[0][i]}{breaks[1][len(str(secondSet[0][i])):]}{secondSet[1][i]}{breaks[2][len(str(secondSet[1][i])):]}{secondSet[2][i]}{breaks[3][len(str(i+1)):]}{secondSet[3][i]}\n")
 
