@@ -274,7 +274,6 @@ class DES():
 
         # Convert the ciphertext to a binary string and return
         self.outputText = ciphertext.to01()
-        return ciphertext.to01()
 
     def decrypt(self):
         # Convert the binary strings to bitarrays
@@ -296,4 +295,3 @@ class DES():
 
         # Convert the plaintext to a binary string and return
         self.outputText = plaintext.to01()
-        return plaintext.to01()
