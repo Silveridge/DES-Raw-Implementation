@@ -161,8 +161,15 @@ class DES():
                 permutedText.append(block[i - 1])
             return permutedText
         
-
-
+        elif(table == 6):
+            inverseExpansion = [0,5,6,11,12,17,18,23,24,29,30,35,36,41,42,47]
+            permutedText = bitarray.bitarray()
+            inverseCT = bitarray.bitarray()
+            for i, bit in enumerate(permutedText):
+                if i not in inverseExpansion:
+                    inverseCT.append(bit)
+            return inverseCT
+                
     def generateRoundKeys(self, key):
         # Perform the permutation choice 1 (self.pc1) on the key
         tempKey = bitarray.bitarray()
@@ -224,7 +231,7 @@ class DES():
             if(self.desVersion != 2):
                 currentString = self.performSBox(currentString)
             else:
-                currentString = self.performSBox(currentString)
+                currentString = self.performPermutations(currentString, 6)
 
             if(self.desVersion != 3):
                 currentString = self.performPermutations(currentString, 4)
