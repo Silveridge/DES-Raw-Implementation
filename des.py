@@ -150,18 +150,21 @@ class DES():
             return expandedText
         
         elif(table == 4):
+            # Perform the self.standardPermutation permutation using self.standardPermutation table
             permutedText = bitarray.bitarray()
             for i in self.standardPermutation:
                 permutedText.append(block[i - 1])
             return permutedText
         
         elif(table == 5):
+            # Perform the self.inverseIP permutation using the self.inverseIP table
             permutedText = bitarray.bitarray()
             for i in self.inverseIP:
                 permutedText.append(block[i - 1])
             return permutedText
         
         elif(table == 6):
+            # Perform the inverse expansion permutation using the inverseExpansion and self.expansion tables
             inverseExpansion = [0,5,6,11,12,17,18,23,24,29,30,35,36,41,42,47]
             permutedText = bitarray.bitarray()
             for i in range(len(self.expansion)):
@@ -227,11 +230,14 @@ class DES():
             if(self.desVersion != 1):
                 currentString = currentString ^ newRoundKey
 
+            # Compress 48 bit block into 32 bit block using S-Boxes
             if(self.desVersion != 2):
                 currentString = self.performSBox(currentString)
+            # Compress 48 bit block into 32 bit block using inverseExpansion
             else:
                 currentString = self.performPermutations(currentString, 6)
 
+            # Permute 32 bit block using standardPermutation table
             if(self.desVersion != 3):
                 currentString = self.performPermutations(currentString, 4)
             currentString = currentString ^ left
