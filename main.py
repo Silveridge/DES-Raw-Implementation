@@ -1,3 +1,8 @@
+# COMP3260 Assignment 2
+# Authors - Sam Fitzpatrick (C3404867) and Corey Silk (C3280997)
+# This program implements DES encryption and decryption of a single 64 bit plaintext block.
+# It also explores the Avalanche effect of the 4 DES encryption algorithms
+
 from des import *
 import time
 
