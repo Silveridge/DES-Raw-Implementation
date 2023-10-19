@@ -1,5 +1,4 @@
-# COMP3260 Assignment 2
-# Authors - Sam Fitzpatrick (C3404867) and Corey Silk (C3280997)
+# Raw DES Implementation
 # This program implements DES encryption and decryption of a single 64 bit plaintext block.
 # It also explores the Avalanche effect of the 4 DES encryption algorithms
 
@@ -91,7 +90,6 @@ end = time.time()
 def writeToFile(plaintext1:str, plaintext2:str, key1:str, key2:str, runningTime:str, ciphertext:str):
     f = open("output.txt","w")
     f.write("Avalanche Demonstration\n")
-    f.write("Implementation by Sam Fitzpatrick (C3404867) and Corey Silk (C3280997)\n")
     f.write(f"Plaintext P: {plaintext1}\n")
     f.write(f"Plaintext P': {plaintext2}\n")
     f.write(f"Key K: {key1}\n")
